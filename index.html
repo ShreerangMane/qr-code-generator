@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free QR Code Generator - Create QR codes for URLs, text, and WiFi networks instantly">
+    <title>Free QR Code Generator - Create WiFi & URL QR Codes Online</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+    
+    <!-- Google AdSense - REPLACE WITH YOUR CODE AFTER APPROVAL -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXX"
+         crossorigin="anonymous"></script>
+    
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Professional ad banner */
+        .ad-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .ad-placeholder {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            background: #f9fafb;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        
+        .tab-button:hover {
+            background: #f3f4f6;
+        }
+        
+        .tab-button.active {
+            background: white;
+            color: #2563eb;
+            border-bottom: 2px solid #2563eb;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- AD BANNER -->
+        <div class="ad-banner">
+            <!-- After AdSense approval, replace this div content with your ad code -->
+            <div class="ad-placeholder">
+                <p class="text-lg font-semibold mb-1">Advertisement</p>
+                <p class="text-sm">Your ad will appear here after AdSense approval</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                    <h1 class="text-3xl font-bold">QR Code Generator</h1>
+                </div>
+                <p class="text-blue-100">Create QR codes instantly for any purpose</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200">
+                <button class="tab-button active" onclick="switchTab('general')">
+                    📝 General QR Code
+                </button>
+                <button class="tab-button" onclick="switchTab('wifi')">
+                    📶 WiFi QR Code
+                </button>
+            </div>
+
+            <div class="p-8">
+                <!-- General QR Code Tab -->
+                <div id="general-tab" class="tab-content active space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Enter Text or URL
+                        </label>
+                        <textarea
+                            id="general-text"
+                            placeholder="Enter website URL, text, phone number, email, or any other data..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                            rows="4"
+                        ></textarea>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Examples: https://example.com, +1234567890, email@example.com, or any text
+                        </p>
+                    </div>
+                    <button
+                        onclick="generateGeneral()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                    >
+                        Generate QR Code
+                    </button>
+                </div>
+
+                <!-- WiFi QR Code Tab -->
+                <div id="wifi-tab" class="tab-content space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Network Name (SSID)
+                        </label>
+                        <input
+                            type="text"
+                            id="wifi-ssid"
+                            placeholder="Enter your WiFi network name"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Password
+                        </label>
+                        <input
+                            type="text"
+                            id="wifi-password"
+                            placeholder="Enter WiFi password (leave empty for open network)"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Security Type
+                        </label>
+                        <select
+                            id="wifi-security"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                        >
+                            <option value="WPA">WPA/WPA2</option>
+                            <option value="WEP">WEP</option>
+                            <option value="nopass">None (Open Network)</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p class="text-sm text-blue-800">
+                            <strong>How it works:</strong> Visitors can scan this QR code with their phone camera to automatically connect to your WiFi network without typing the password.
+                        </p>
+                    </div>
+
+                    <button
+                        onclick="generateWiFi()"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                    >
+                        Generate WiFi QR Code
+                    </button>
+                </div>
+
+                <!-- QR Code Display -->
+                <div id="qr-result" class="mt-8 pt-8 border-t border-gray-200" style="display: none;">
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Your QR Code</h3>
+                        <div class="bg-white p-6 rounded-lg shadow-md border-2 border-gray-200">
+                            <div id="qrcode"></div>
+                        </div>
+                        
+                        <div class="mt-6 w-full max-w-xs">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 text-center">
+                                Download Format
+                            </label>
+                            <select
+                                id="download-format"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-center"
+                            >
+                                <option value="png">PNG Image</option>
+                                <option value="jpeg">JPEG Image</option>
+                                <option value="pdf">PDF Document</option>
+                            </select>
+                        </div>
+                        
+                        <button
+                            onclick="downloadQR()"
+                            class="mt-4 flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                        >
+                            ⬇️ Download QR Code
+                        </button>
+                        <p class="mt-4 text-sm text-gray-500 text-center max-w-md">
+                            Point your smartphone camera at the QR code to scan it
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">💡 Quick Tips</h2>
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">General QR Codes</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Share website links instantly</li>
+                        <li>• Add contact information</li>
+                        <li>• Share social media profiles</li>
+                        <li>• Create event invitations</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h3 class="font-semibold text-gray-800 mb-2">WiFi QR Codes</h3>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Print and display in your home</li>
+                        <li>• Perfect for guest rooms</li>
+                        <li>• Use in cafes or offices</li>
+                        <li>• No more password sharing hassle</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-6 text-center text-sm text-gray-600">
+            <a href="/privacy.html" class="hover:text-blue-600 underline">Privacy Policy</a>
+            • © 2024 QR Generator
+        </div>
+    </div>
+
+    <script>
+        let currentQRCode = null;
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+
+        // Generate General QR Code
+        function generateGeneral() {
+            const text = document.getElementById('general-text').value.trim();
+            if (!text) {
+                alert('Please enter some text or URL');
+                return;
+            }
+            generateQRCode(text);
+        }
+
+        // Generate WiFi QR Code
+        function generateWiFi() {
+            const ssid = document.getElementById('wifi-ssid').value.trim();
+            const password = document.getElementById('wifi-password').value;
+            const security = document.getElementById('wifi-security').value;
+            
+            if (!ssid) {
+                alert('Please enter your WiFi network name');
+                return;
+            }
+            
+            const wifiString = `WIFI:T:${security};S:${ssid};P:${password};;`;
+            generateQRCode(wifiString);
+        }
+
+        // Generate QR Code
+        function generateQRCode(text) {
+            // Clear previous QR code
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+            
+            // Generate new QR code
+            currentQRCode = new QRCode(qrcodeDiv, {
+                text: text,
+                width: 300,
+                height: 300,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Show result section
+            document.getElementById('qr-result').style.display = 'block';
+            
+            // Scroll to QR code
+            setTimeout(() => {
+                document.getElementById('qr-result').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        // Download QR Code
+        function downloadQR() {
+            const format = document.getElementById('download-format').value;
+            const canvas = document.querySelector('#qrcode canvas');
+            
+            if (!canvas) {
+                alert('Please generate a QR code first');
+                return;
+            }
+            
+            const timestamp = Date.now();
+            
+            if (format === 'png' || format === 'jpeg') {
+                const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `qrcode-${timestamp}.${format}`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                }, mimeType, 0.95);
+            } else if (format === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                pdf.setFontSize(16);
+                pdf.text('QR Code', 105, 20, { align: 'center' });
+                
+                const imgData = canvas.toDataURL('image/png');
+                pdf.addImage(imgData, 'PNG', 55, 40, 100, 100);
+                
+                pdf.setFontSize(10);
+                pdf.text('Scan with your smartphone', 105, 155, { align: 'center' });
+                
+                pdf.save(`qrcode-${timestamp}.pdf`);
+            }
+        }
+    </script>
+</body>
+</html>

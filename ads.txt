@@ -1,0 +1,4 @@
+# ads.txt file for Google AdSense
+# Replace ca-pub-XXXXXXXXXXXXXXXX with YOUR actual AdSense Publisher ID
+
+google.com, pub-1939339245392106, DIRECT, f08c47fec0942fa0
